@@ -86,6 +86,7 @@ import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
+import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.installations.FirebaseInstallations
 
@@ -982,10 +983,19 @@ fun CreateAccountButton(
             auth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener{ task: Task<AuthResult> ->
                     if(task.isSuccessful) {
-
                         Log.d("SignUpActivity", "Usuário criado com sucesso!")
+
                         val user = auth.currentUser
                         val userUid = user?.uid ?: return@addOnCompleteListener
+
+                        /* Atualiza o perfil do display name do Auth
+                        Para fins de template de email (verificação, redefinição de senha, etc.)
+                        */
+
+                        val profileUpdates = UserProfileChangeRequest.Builder()
+                            .setDisplayName(firstName)
+                            .build()
+                        user?.updateProfile(profileUpdates)
 
                         // Obtem o AndroidID
                         val androidId = android.provider.Settings.Secure.getString(
