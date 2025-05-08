@@ -15,7 +15,8 @@
         <activity
             android:name=".PasswordRecoverActivity"
             android:exported="false"
-            android:label="@string/title_activity_password_recover"
+            android:label="PasswordRecover"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.FireAuthTest" />
         <activity
             android:name=".WelcomeActivity"
