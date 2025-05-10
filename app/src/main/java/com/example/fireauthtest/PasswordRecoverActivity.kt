@@ -27,6 +27,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -42,10 +43,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.credentials.exceptions.domerrors.NamespaceError
+import com.google.firebase.Firebase
+import com.google.firebase.auth.FirebaseAuth
 
 
 class PasswordRecoverActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
@@ -54,18 +58,41 @@ class PasswordRecoverActivity : ComponentActivity() {
     }
 }
 
+class EmailTextFieldController(
+    val emailInput : MutableState<String>
+){
+    var emailValue : String
+        get() = emailInput.value
+        set(value) { emailValue = value }
 
-@Preview
+    val isEmailFormatValid : Boolean
+        get() = android.util.Patterns.EMAIL_ADDRESS.matcher(emailValue).matches()
+
+    val isEmailFieldNotEmpty : Boolean
+        get() = emailValue.isNotEmpty()
+
+    val validEmailInput : Boolean
+        get() = isEmailFormatValid && isEmailFieldNotEmpty
+}
+
+
 @Composable
 fun PasswordRecoverScreen(){
 
-    var emailInput by remember { mutableStateOf("") }
+    var emailInput = remember { mutableStateOf("") }
+
+    val EmailInputController = remember { EmailTextFieldController(emailInput) }
+
+    var showSuccessDialog by remember { mutableStateOf(false) }
+    var showfailedDialog by remember { mutableStateOf(false) }
 
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.Black)
     )
+
+
 
     Box(
         modifier = Modifier
@@ -77,6 +104,14 @@ fun PasswordRecoverScreen(){
                 .padding(30.dp),
             verticalArrangement = Arrangement.Center
         ){
+
+            if(showSuccessDialog){
+
+            }
+
+            if(showfailedDialog){
+
+            }
 
             Text(
                 text = "Recuperação de Senha",
@@ -123,8 +158,8 @@ fun PasswordRecoverScreen(){
                 Spacer(modifier = Modifier.width(15.dp))
 
                 OutlinedTextField(
-                    value = emailInput,
-                    onValueChange = { emailInput = it },
+                    value = emailInput.value,
+                    onValueChange = { emailInput.value = it },
                     label = {
                         Text(
                             text = "Email de Recuperação",
@@ -154,21 +189,59 @@ fun PasswordRecoverScreen(){
                     .fillMaxWidth(),
                 horizontalArrangement = Arrangement.Center
             ){
-                Button(
-                    onClick = {},
-                    shape = RoundedCornerShape(8.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(255, 65, 0)
-                    )
-                ) {
-                    Text(
-                        text = "Enviar Email de Recuperação",
-                        color = Color.White
-                    )
-                }
+                SendResetEmailButton(
+                    emailInput,
+                    EmailInputController
+                )
             }
 
             Spacer(modifier = Modifier.height(200.dp))
         }
     }
+}
+
+
+@Composable
+fun SendResetEmailButton(
+    email: MutableState<String>,
+    inputController : EmailTextFieldController
+){
+
+    Button(
+        onClick = {
+            val auth = FirebaseAuth.getInstance()
+
+            auth.sendPasswordResetEmail(email.value)
+                .addOnCompleteListener { task ->
+                    if(task.isSuccessful){
+
+                    }
+                    else {
+
+                    }
+                }
+        },
+        shape = RoundedCornerShape(8.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = Color(255, 65, 0)
+        ),
+        enabled = inputController.validEmailInput
+
+    ) {
+        Text(
+            text = "Enviar Email de Recuperação",
+            color = Color.White
+        )
+    }
+}
+
+@Composable
+fun SuccessDialog(){
+
+    
+}
+
+fun FailedDialog(){
+
+
 }
