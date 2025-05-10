@@ -238,7 +238,7 @@ fun SendResetEmailButton(
 @Composable
 fun SuccessDialog(){
 
-    
+
 }
 
 fun FailedDialog(){
