@@ -59,10 +59,6 @@ import androidx.credentials.exceptions.domerrors.NamespaceError
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 
-/*
-    TO DO:
-     - Terminar os dialogs
-*/
 
 class PasswordRecoverActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -103,15 +99,13 @@ fun PasswordRecoverScreen(){
     var showSuccessDialog = remember { mutableStateOf(false) }
     var showFailedDialog = remember { mutableStateOf(false) }
 
-
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.Black)
     )
 
-
-
+    
     Box(
         modifier = Modifier
             .fillMaxSize()
