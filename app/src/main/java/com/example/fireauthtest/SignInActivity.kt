@@ -212,8 +212,9 @@ fun signInScreen(
             // Botão Esqueci a senha
             OutlinedButton(
                 onClick = {
-
-                     },
+                    val intent = Intent(context, PasswordRecoverActivity::class.java)
+                    context.startActivity(intent)
+                },
                 shape = MaterialTheme.shapes.small,
                 colors = ButtonDefaults.outlinedButtonColors(
                     contentColor = Color.DarkGray
