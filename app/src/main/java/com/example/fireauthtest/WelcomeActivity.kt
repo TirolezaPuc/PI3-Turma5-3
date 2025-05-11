@@ -5,102 +5,196 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.delay
+
 
 class WelcomeActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            welcomeScreen()
+            WelcomeScreen()
         }
     }
 }
 
+
+/*
+   TODO:
+   Verificar se o usuario ja possui uma sessao ativa no aparelho
+   Usar getInstance().currentUser
+   Se for null, nao ha sesssao. Se sim, redirecionar a main.
+
+ */
+
 @Preview
 @Composable
-fun welcomeScreen(modifier: Modifier = Modifier){
+fun WelcomeScreen(){
 
-    /* Usando o sistema de navegação legado
-       Através de intents.
+    var showSplashScreen by remember { mutableStateOf(true) }
 
-       A variável context recebe o objeto do contexto atual.
-       O LocalContext serve APENAS em Composables.
+    LaunchedEffect(Unit) {
+        delay(3000)
+        showSplashScreen = false
+    }
 
-       O Context agora informa o ambiente composable que se está.
-       Ele servirá para construir o Intent futuramente
-       (estou aqui (context) e quero ir para tal activity (classe da Activity))
-       
-    */
+    if (showSplashScreen) {
+        SplashScreen()
+    }
+    else{
+        MainContent()
+    }
+
+    
+}
+
+@Composable
+fun SplashScreen(){
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0, 61, 177)),
+        contentAlignment = Alignment.Center
+    ){
+        Image(
+            painter = painterResource(R.drawable.superid_logo_bluebackground),
+            contentDescription = "Icone do SuperID"
+        )
+    }
+
+
+}
+
+@Composable
+fun MainContent(){
 
     val context = LocalContext.current
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(5.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
+            .padding(50.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
     ){
-        Text(
-            text = "Testando o Firebase Auth :)",
-            style = TextStyle(
-                fontSize = 25.sp
-            )
-        )
 
-        Spacer(modifier = Modifier.height(25.dp))
-
-        Button(
-            onClick = {
-                val intent = Intent(context, SignUpActivity::class.java)
-                context.startActivity(intent)
-            },
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFF374CCE)
-            )
-        ) {
+        Box(
+            modifier = Modifier
+        ){
             Text(
-                text = "Faça seu Cadastro"
+                text = stringResource(R.string.welcome_screen_mainTitle),
+                style = TextStyle(
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 60.sp
+                )
             )
         }
 
-        Spacer(modifier = Modifier.height(10.dp))
+        Spacer(modifier = Modifier.height(20.dp))
 
-        Button(
-            onClick = {
-                val intent = Intent(context, SignInActivity::class.java)
-                context.startActivity(intent)
-                },
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFF4ACC4E)
-            )
-        ) {
+        Box(
+            modifier = Modifier
+        ){
             Text(
-                text = "Entrar"
+                text = stringResource(R.string.welcome_screen_subtitle),
+                style = TextStyle(
+                    fontSize = 20.sp
+                )
             )
         }
 
+        Spacer(modifier = Modifier.height(20.dp))
 
+        Box(
+            modifier = Modifier
+                .border(
+                    width = 2.dp,
+                    color = Color.LightGray,
+                    shape = RectangleShape
+                )
+                .size(400.dp, 200.dp)
+        ){
+            Column(
+                modifier = Modifier
+                    .matchParentSize(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ){
+
+                Text(
+                    text = "Novo aqui?"
+                )
+
+                Spacer(modifier = Modifier.height(5.dp))
+
+                Button(
+                    onClick = {
+                        val intent = Intent(context, SignUpActivity::class.java)
+                        context.startActivity(intent)
+                    },
+                    modifier = Modifier
+                        .width(180.dp)
+                        .height(50.dp),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Text("Criar Conta")
+                }
+
+                Spacer(modifier = Modifier.height(20.dp))
+
+                Text(
+                    text = "Já possui conta?"
+                )
+
+                Spacer(modifier = Modifier.height(5.dp))
+
+                Button(
+                    onClick = {
+                        val intent = Intent(context, SignInActivity::class.java)
+                        context.startActivity(intent)
+                    },
+                    modifier = Modifier
+                        .width(180.dp)
+                        .height(50.dp),
+                    shape = RoundedCornerShape(8.dp)
+                ){
+                    Text("Entrar")
+                }
+            }
+        }
     }
+
 }
-
-
-

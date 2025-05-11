@@ -1,4 +1,4 @@
-# Created by https://www.toptal.com/developers/gitignore/api/androidstudio
+ Created by https://www.toptal.com/developers/gitignore/api/androidstudio
 # Edit at https://www.toptal.com/developers/gitignore?templates=androidstudio
 
 ### AndroidStudio ###
@@ -71,6 +71,7 @@ obj/
 /out/
 
 # User-specific configurations
+.idea/deploymentTargetSelector.xml
 .idea/caches/
 .idea/libraries/
 .idea/shelf/
