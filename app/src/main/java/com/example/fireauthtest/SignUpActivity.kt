@@ -86,15 +86,12 @@ import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
+import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.installations.FirebaseInstallations
 
 
-/*
-
-!!!  USANDO GOOGLE-SERVICES API DA MINHA CONTA FIREBASE.
-DEPOIS ALTERAR PARA O FIREBASE DO PROJETO!
-
-TO DO
+/* TO DO
     - Adicionar uma seta ao topo para retornar ao WelcomeScreen
     - Encapsular a função de criar usuario (talvez?)
     - Adicionar tema/elementos de UI do app
@@ -955,6 +952,9 @@ fun TermsOfUseDialog(
     }
 }
 
+
+// A lógica do Firebase se encontra no Composable-filho CreateAcountButton
+
 @Composable
 fun CreateAccountButton(
     enabledButton : Boolean,
@@ -969,40 +969,73 @@ fun CreateAccountButton(
     password : String,
 
     ){
+
+    val context = LocalContext.current
     var showProgressIndicator by remember { mutableStateOf(false) }
 
     Button(
         enabled = enabledButton,
         onClick = {
-            // Criar uma funcao pra isso aq...
+            // Desemcapsular essa funcao em uma funcao separada...
 
             showProgressIndicator = true
 
             auth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener{ task: Task<AuthResult> ->
-                    if(task.isSuccessful){
+                    if(task.isSuccessful) {
                         Log.d("SignUpActivity", "Usuário criado com sucesso!")
+
                         val user = auth.currentUser
                         val userUid = user?.uid ?: return@addOnCompleteListener
 
-                        val userData = hashMapOf(
-                            "firstName" to firstName,
-                            "surname" to surname,
-                            "deviceId" to ""
+                        /* Atualiza o perfil do display name do Auth
+                        Para fins de template de email (verificação, redefinição de senha, etc.)
+                        */
+
+                        val profileUpdates = UserProfileChangeRequest.Builder()
+                            .setDisplayName(firstName)
+                            .build()
+                        user?.updateProfile(profileUpdates)
+
+                        // Obtem o AndroidID
+                        val androidId = android.provider.Settings.Secure.getString(
+                            context.contentResolver,
+                            android.provider.Settings.Secure.ANDROID_ID
                         )
 
-                        db.collection("users")   // Acessa a colecao users
-                            .document(userUid)  // Gera o documento cujo Id é o userId
-                            .set(userData)      // Atribui os dados do documento conforme o HashMap
-                            .addOnSuccessListener { // O listener de Firestore nao retorna um objeto do tipo Task como em Auth
-                                Log.d("SignUpActivity", "Firestore user doc created sucessfully")
-                                // Exibir AlertDialog de usuario criado
-                                showAccountCreatedDialog.value = true
-                                // Mudar depois para redirecionar a activity de verificar email.
-                            }
-                            .addOnFailureListener {
-                                Log.d("SignUpActivity", "Firestore user doc creation failed")
-                                // Exibir AlertDialog de erro
+                        // Obtem o Firebase Installations ID (FID)
+
+                        FirebaseInstallations.getInstance().id
+                            .addOnCompleteListener { task ->
+                                if(task.isSuccessful){
+                                    val fid: String = task.result
+                                    Log.d("SignUpActivity", "Firebase Installations ID obtained succesfully")
+
+                                    val userData = hashMapOf(
+                                        "firstName" to firstName,
+                                        "surname" to surname,
+                                        "androidID" to androidId,
+                                        "fid" to fid
+                                    )
+
+                                    db.collection("users")   // Acessa a colecao users
+                                        .document(userUid)  // Gera o documento cujo Id é o userId
+                                        .set(userData)      // Atribui os dados do documento conforme o HashMap
+                                        .addOnSuccessListener { // O listener de Firestore nao retorna um objeto do tipo Task como em Auth
+                                            Log.d("SignUpActivity", "Firestore user doc created sucessfully")
+                                            // Exibir AlertDialog de usuario criado
+                                            showAccountCreatedDialog.value = true
+                                            // Mudar depois para redirecionar a activity de verificar email.
+                                        }
+                                        .addOnFailureListener {
+                                            Log.d("SignUpActivity", "Firestore user doc creation failed")
+                                            // Exibir AlertDialog de erro
+                                        }
+
+                                } else {
+                                    Log.w("SignUpActivity", "Failed to get Firebase Installations ID.")
+                                    Log.w("SignUpActivity", "Firebase Auth User created but User doc not created.")
+                                }
                             }
 
                     }
@@ -1033,6 +1066,8 @@ fun CreateAccountButton(
         }
     }
 }
+
+// Dialogs de final do fluxo (conta criada com sucesso, email em uso, etc.)
 
 @Composable
 fun AccountCreatedDialog(

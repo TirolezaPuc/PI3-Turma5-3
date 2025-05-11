@@ -5,9 +5,12 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,6 +22,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -29,11 +33,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -103,6 +107,12 @@ fun MainContent(){
 
     val context = LocalContext.current
 
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0, 61, 177))
+    )
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -118,7 +128,8 @@ fun MainContent(){
                 text = stringResource(R.string.welcome_screen_mainTitle),
                 style = TextStyle(
                     fontWeight = FontWeight.Bold,
-                    fontSize = 60.sp
+                    fontSize = 60.sp,
+                    color = Color.White
                 )
             )
         }
@@ -131,7 +142,8 @@ fun MainContent(){
             Text(
                 text = stringResource(R.string.welcome_screen_subtitle),
                 style = TextStyle(
-                    fontSize = 20.sp
+                    fontSize = 20.sp,
+                    color = Color.White
                 )
             )
         }
@@ -140,11 +152,6 @@ fun MainContent(){
 
         Box(
             modifier = Modifier
-                .border(
-                    width = 2.dp,
-                    color = Color.LightGray,
-                    shape = RectangleShape
-                )
                 .size(400.dp, 200.dp)
         ){
             Column(
@@ -155,10 +162,20 @@ fun MainContent(){
             ){
 
                 Text(
-                    text = "Novo aqui?"
+                    text = "Novo aqui?",
+                    style = TextStyle(
+                        color = Color.White,
+                        fontStyle = FontStyle.Italic
+                    )
                 )
 
                 Spacer(modifier = Modifier.height(5.dp))
+
+                val interactionSource_btn1 = remember { MutableInteractionSource() }
+                val isPressed1 by interactionSource_btn1.collectIsPressedAsState()
+                val bgColor1 by animateColorAsState(
+                    targetValue = if (isPressed1) Color(0xFFE0E0E0) else Color.White
+                )
 
                 Button(
                     onClick = {
@@ -167,19 +184,45 @@ fun MainContent(){
                     },
                     modifier = Modifier
                         .width(180.dp)
-                        .height(50.dp),
-                    shape = RoundedCornerShape(8.dp)
+                        .height(50.dp)
+                        .border(1.dp, Color.Black, RoundedCornerShape(8.dp)),
+                    shape = RoundedCornerShape(8.dp),
+                    elevation = ButtonDefaults.buttonElevation(
+                        defaultElevation = 8.dp,
+                        pressedElevation = 2.dp
+                    ),
+                    interactionSource = interactionSource_btn1,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = bgColor1
+                    )
                 ) {
-                    Text("Criar Conta")
+                    Text(
+                        text = "Criar Conta",
+                        style = TextStyle(
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.Black
+                        )
+                    )
                 }
 
                 Spacer(modifier = Modifier.height(20.dp))
 
                 Text(
-                    text = "Já possui conta?"
+                    text = "Já possui conta?",
+                    style = TextStyle(
+                        color = Color.White,
+                        fontStyle = FontStyle.Italic
+                    )
                 )
 
                 Spacer(modifier = Modifier.height(5.dp))
+
+                val interactionSource_btn2 = remember { MutableInteractionSource() }
+                val isPressed by interactionSource_btn2.collectIsPressedAsState()
+                val bgColor by animateColorAsState(
+                    targetValue = if (isPressed) Color(0xFFE0E0E0) else Color.White
+                )
 
                 Button(
                     onClick = {
@@ -189,9 +232,16 @@ fun MainContent(){
                     modifier = Modifier
                         .width(180.dp)
                         .height(50.dp),
-                    shape = RoundedCornerShape(8.dp)
+                    shape = RoundedCornerShape(8.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.White,
+                    )
                 ){
-                    Text("Entrar")
+                    Text(
+                        text = "Entrar",
+                        fontSize = 20.sp,
+                        color = Color.Black,
+                        fontWeight = FontWeight.Bold)
                 }
             }
         }
