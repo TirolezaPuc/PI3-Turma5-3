@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.MailOutline
 import androidx.compose.material.icons.rounded.Email
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -30,7 +31,9 @@ import androidx.compose.material3.CheckboxDefaults.colors
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
@@ -43,6 +46,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -55,6 +59,10 @@ import androidx.credentials.exceptions.domerrors.NamespaceError
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 
+/*
+    TO DO:
+     - Terminar os dialogs
+*/
 
 class PasswordRecoverActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -278,26 +286,72 @@ fun SuccessDialog(
     Dialog(
         onDismissRequest = onDismissRequest
     ) {
-        Box(
-            modifier = Modifier
-                .background(Color.White)
-                .size(270.dp)
-                .padding(25.dp)
-        ){
-            Column(
+
+        Surface(
+            shape = RoundedCornerShape(20.dp),
+            tonalElevation = 8.dp
+        ) {
+            Box(
                 modifier = Modifier
-                    .matchParentSize(),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.SpaceEvenly
+                    .background(Color.White)
+                    .size(270.dp)
+                    .padding(25.dp)
             ){
-                Text("Email enviado :)")
-                Button(
-                    onClick = {
-                        val intent = Intent(context, SignInActivity::class.java)
-                        context.startActivity(intent)
-                    }
+                Column(
+                    modifier = Modifier
+                        .matchParentSize(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.SpaceEvenly
                 ){
-                    Text("fechar")
+
+                    Icon(
+                        imageVector = Icons.Default.MailOutline,
+                        modifier = Modifier.size(50.dp),
+                        tint = Color.Green,
+                        contentDescription = "Ícone de Email"
+                    )
+
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    Text(
+                        text = "Email de Recuperação Enviado",
+                        style = TextStyle(
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 18.sp,
+                            textAlign = TextAlign.Center
+                        )
+                    )
+
+                    Text(
+                        text = "Siga as instruções contidas no email para redefinir sua senha. Certifique-se de que o email não está em sua caixa de spam.",
+                        style = TextStyle(
+                            fontWeight = FontWeight.Light,
+                            textAlign = TextAlign.Center
+                        )
+                    )
+
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        horizontalArrangement = Arrangement.End
+                    ){
+                        TextButton(
+                            onClick = {
+                                val intent = Intent(context, SignInActivity::class.java)
+                                context.startActivity(intent)
+                            }
+                        ){
+                            Text("Fazer Login")
+                        }
+
+                        TextButton(
+                            onClick = onDismissRequest
+                        ) {
+                            Text("Fechar")
+                        }
+                    }
                 }
             }
         }
@@ -306,24 +360,72 @@ fun SuccessDialog(
 
 @Composable
 fun FailedDialog(
-    onDismissRequest: () -> Unit
+    onDismissRequest : () -> Unit
 ){
+
     Dialog(
         onDismissRequest = onDismissRequest
     ) {
-        Box(
-            modifier = Modifier
-                .background(Color.White)
-                .size(270.dp)
-                .padding(25.dp)
-        ){
-            Column(
+
+        Surface(
+            shape = RoundedCornerShape(20.dp),
+            tonalElevation = 8.dp
+        ) {
+            Box(
                 modifier = Modifier
-                    .matchParentSize(),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.SpaceEvenly
-            ) {
-                Text("deu ruim")
+                    .background(Color.White)
+                    .size(270.dp)
+                    .padding(25.dp)
+            ){
+                Column(
+                    modifier = Modifier
+                        .matchParentSize(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.SpaceEvenly
+                ){
+
+                    Icon(
+                        painter = painterResource(R.drawable.error_icon),
+                        tint = Color.Red,
+                        modifier = Modifier.size(50.dp),
+                        contentDescription = "Ícone de Erro"
+                    )
+
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    Text(
+                        text = "Não foi possível enviar email de recuperação",
+                        style = TextStyle(
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 18.sp,
+                            textAlign = TextAlign.Center
+                        )
+                    )
+
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    Text(
+                        text = "Algo deu errado. Nossos engenheiros estão quebrando a cabeça para resolver. Tente novamente mais tarde.",
+                        style = TextStyle(
+                            fontWeight = FontWeight.Light,
+                            textAlign = TextAlign.Center
+                        )
+                    )
+
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        horizontalArrangement = Arrangement.End
+                    ){
+                        TextButton(
+                            onClick = onDismissRequest
+                        ) {
+                            Text("Fechar")
+                        }
+                    }
+                }
             }
         }
     }
