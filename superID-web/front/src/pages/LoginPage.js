@@ -37,7 +37,7 @@ function LoginPage() {
   return (
     <div className="login-container">
       <form className="login-box" onSubmit={handleSubmit}>
-        <h2>Super ID</h2>
+        <h2>Partner Company</h2>
 
         {error && <p style={{ color: "red" }}>{error}</p>}
 
@@ -80,6 +80,18 @@ function LoginPage() {
 
         <button type="submit" className="login-button">
           Entrar
+        </button>
+
+        <div className="login-divider">
+          <span>ou</span>
+        </div>
+
+        <button
+          type="button"
+          className="superid-button"
+          onClick={() => navigate("/superid")}
+        >
+          Entrar com SuperID
         </button>
       </form>
     </div>
