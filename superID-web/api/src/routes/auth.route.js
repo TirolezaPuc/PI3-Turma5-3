@@ -8,5 +8,6 @@ const authController = require("../controllers/authController");
 // Rotas públicas
 router.post("/login", authController.login);
 router.post("/forgot", authController.forgotPassword);
+router.post("/performAuth", authController.performAuth);
 
 module.exports = router; // Exporta router configurado

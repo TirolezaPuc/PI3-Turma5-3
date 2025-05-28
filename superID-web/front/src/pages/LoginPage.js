@@ -9,6 +9,13 @@ function LoginPage() {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
+  //qr pop-up
+  const [showModal, setShowModal] = useState(false);
+  const [qrBase64, setQrBase64] = useState("");
+  const [loadingQR, setLoadingQR] = useState(false);
+  const [qrError, setQrError] = useState("");
+
+  //handler de login
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -31,6 +38,38 @@ function LoginPage() {
     } catch (err) {
       console.error(err);
       setError("Erro de comunicação com o servidor.");
+    }
+  };
+  //handler de pop-up superID login
+  const handleSuperIdLogin = async () => {
+    setShowModal(true);
+    setLoadingQR(true);
+    setQrError("");
+
+    try {
+      const res = await fetch("/api/auth/performAuth", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          apiKey: "pi3turma5",
+          siteUrl: "www.seusite.com.br",
+        }),
+      });
+      console.log("[SuperID] Enviando request performAuth...");
+
+      const data = await res.json();
+
+      if (res.ok && data.qrBase64) {
+        console.log("[SuperID] QR code recebido com sucesso.");
+        setQrBase64(data.qrBase64);
+      } else {
+        setQrError("Erro ao gerar QR Code.");
+      }
+    } catch (err) {
+      console.error(err);
+      setQrError("Erro de comunicação com o servidor.");
+    } finally {
+      setLoadingQR(false);
     }
   };
 
@@ -89,11 +128,36 @@ function LoginPage() {
         <button
           type="button"
           className="superid-button"
-          onClick={() => navigate("/superid")}
+          onClick={handleSuperIdLogin}
         >
           Entrar com SuperID
         </button>
       </form>
+      {showModal && (
+        //pop-up modal
+        <div className="modal-overlay" onClick={() => setShowModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <h3>
+              Escaneie com o app{" "}
+              <span className="superid-highlight">Super ID</span>
+            </h3>
+
+            {loadingQR && <p>Gerando QR Code...</p>}
+            {qrError && <p style={{ color: "red" }}>{qrError}</p>}
+
+            {!loadingQR && qrBase64 && (
+              <img
+                src={`data:image/png;base64,${qrBase64}`}
+                alt="QR Code SuperID"
+              />
+            )}
+
+            <button onClick={() => setShowModal(false)} className="close-modal">
+              x
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
