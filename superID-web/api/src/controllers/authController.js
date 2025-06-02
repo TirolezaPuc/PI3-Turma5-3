@@ -41,44 +41,33 @@ exports.forgotPassword = (req, res) => {
 const { v4: uuidv4 } = require("uuid");
 const QRCode = require("qrcode");
 
-exports.performAuth = async (req, res) => {
+const axios = require("axios"); // Única dependência necessária
+
+const PERFORM_AUTH_URL = "https://getloginstatus-ey3isjsbgq-uc.a.run.app/";
+
+const performAuth = async (req, res) => {
   const { apiKey, siteUrl } = req.body;
-  console.log("[QR Auth] Requisição recebida:", { apiKey, siteUrl });
 
   if (!apiKey || !siteUrl) {
-    console.warn("[QR Auth] apiKey ou siteUrl ausente.");
-    return res.status(400).json({ error: "Parâmetros obrigatórios ausentes." });
+    return res.status(400).json({ error: "Dados incompletos" });
   }
 
-  // validação simples
-  if (apiKey !== process.env.TEST_API_KEY) {
-    console.warn("[QR Auth] API Key inválida.");
-    return res.status(403).json({ error: "API Key inválida." });
-  }
-
-  const loginToken = uuidv4().replace(/-/g, "") + uuidv4().replace(/-/g, ""); // ~256 caracteres
-  console.log("[QR Auth] Token gerado:", loginToken);
-
-  // tenta gerar imagem QR Code com esse conteúdo
   try {
-    // Cria documento no Firestore na coleção 'login'
-    await db.collection("partners").doc(loginToken).set({
+    const { data } = await axios.post(PERFORM_AUTH_URL, {
       apiKey,
-      siteUrl,
-      createdAt: new Date(),
-      loginToken,
+      domain: siteUrl,
     });
-    console.log("[QR Auth] Documento criado no Firestore com sucesso.");
 
-    const qrBase64 = await QRCode.toDataURL(loginToken);
-    console.log("[QR Auth] QR Code gerado com sucesso.");
-
-    return res.json({ loginToken, qrBase64: qrBase64.split(",")[1] }); // envia apenas o base64 puro
-  } catch (err) {
-    console.error(
-      "[QR Auth] Erro ao gerar QR Code ou salvar no Firestore:",
-      err
-    );
-    return res.status(500).json({ error: "Erro ao gerar QR Code." });
+    return res.json({
+      loginToken: data.loginToken,
+      qrBase64: data.qrCode.split(",")[1],
+    });
+  } catch (error) {
+    console.error("Erro:", error);
+    const status = error.response?.status || 500;
+    const message = error.response?.data?.error || "Falha ao gerar QR Code";
+    return res.status(status).json({ error: message });
   }
 };
+
+exports.performAuth = performAuth;

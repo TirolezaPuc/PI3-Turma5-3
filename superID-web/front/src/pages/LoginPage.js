@@ -51,8 +51,8 @@ function LoginPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          apiKey: "pi3turma5",
-          siteUrl: "www.seusite.com.br",
+          apiKey: "secretasenha",
+          siteUrl: "www.xptositeweb.com.br",
         }),
       });
       console.log("[SuperID] Enviando request performAuth...");
